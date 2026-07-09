@@ -5,60 +5,36 @@ and Interchange DTD v1.2 20190208//EN" "JATS-archivearticle1.dtd">
 <article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" dtd-version="1.2" article-type="other">
 
 <front>
-<journal-meta>
-<journal-id></journal-id>
-
-<journal-title-group>
-<journal-title>Earth and Space Science</journal-title>
-</journal-title-group>
-<issn></issn>
-
-<publisher>
-<publisher-name></publisher-name>
-</publisher>
-</journal-meta>
 
 
 <article-meta>
 
 
 <title-group>
-<article-title>La Palma Earthquakes</article-title>
+<article-title>Open-Source Python Tools for Annotation and
+Classification of Marine Acoustic Backscattering</article-title>
 </title-group>
 
 <contrib-group>
 <contrib contrib-type="author" corresp="yes">
-<contrib-id contrib-id-type="orcid">0000-0002-0760-5497</contrib-id>
+<contrib-id contrib-id-type="orcid">0009-0003-4820-6999</contrib-id>
 <name>
-<surname>Purves</surname>
-<given-names>Steve</given-names>
+<surname>Ringuenet</surname>
+<given-names>Gaspard</given-names>
 </name>
-<string-name>Steve Purves</string-name>
+<string-name>Gaspard Ringuenet</string-name>
 
-<email>steve@curvenote.com</email>
-<role vocab="https://credit.niso.org" vocab-term="investigation" vocab-term-identifier="https://credit.niso.org/contributor-roles/investigation/">Investigation</role>
-<role vocab="https://credit.niso.org" vocab-term="project
-administration" vocab-term-identifier="https://credit.niso.org/contributor-roles/project-administration/">Project
-administration</role>
+<email>gaspard.ringuenet@umontpellier.fr</email>
+<role>Writiing</role>
 <role vocab="https://credit.niso.org" vocab-term="software" vocab-term-identifier="https://credit.niso.org/contributor-roles/software/">Software</role>
 <role vocab="https://credit.niso.org" vocab-term="visualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/visualization/">Visualization</role>
 <xref ref-type="aff" rid="aff-1">a</xref>
 <xref ref-type="corresp" rid="cor-1">&#x002A;</xref>
 </contrib>
-<contrib contrib-type="author">
-<contrib-id contrib-id-type="orcid">0000-0002-7859-8394</contrib-id>
-<name>
-<surname>Cockett</surname>
-<given-names>Rowan</given-names>
-</name>
-<string-name>Rowan Cockett</string-name>
-
-<xref ref-type="aff" rid="aff-1">a</xref>
-</contrib>
 </contrib-group>
 <aff id="aff-1">
 <institution-wrap>
-<institution>Curvenote</institution>
+<institution>University of Montpellier</institution>
 </institution-wrap>
 
 
@@ -69,14 +45,10 @@ administration</role>
 
 </aff>
 <author-notes>
-<corresp id="cor-1">steve@curvenote.com</corresp>
+<corresp id="cor-1">gaspard.ringuenet@umontpellier.fr</corresp>
 </author-notes>
 
-<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2026-07-09">
-<year>2026</year>
-<month>7</month>
-<day>9</day>
-</pub-date>
+
 
 
 
@@ -87,16 +59,9 @@ administration</role>
 <history></history>
 
 
-<abstract>
-<p>In September 2021, a significant jump in seismic activity on the
-island of La Palma (Canary Islands, Spain) signaled the start of a
-volcanic crisis that still continues at the time of writing. Earthquake
-data is continually collected and published by the Instituto Geográphico
-Nacional (IGN). …</p>
-</abstract>
 <kwd-group kwd-group-type="author">
-<kwd>La Palma</kwd>
-<kwd>Earthquakes</kwd>
+<kwd>Multi-frequency acoustics</kwd>
+<kwd>Machine Learning</kwd>
 </kwd-group>
 
 
@@ -108,450 +73,522 @@ Nacional (IGN). …</p>
 
 <body>
 <sec id="introduction">
-  <title>1 Introduction</title>
-  <fig id="fig-timeline">
-    <caption><p>Figure 1: Timeline of recent earthquakes on La
-    Palma</p></caption>
-    <graphic mimetype="image" mime-subtype="png" xlink:href="index_files/figure-jats/fig-timeline-1.png" />
-  </fig>
-  <p>Based on data up to and including 1971, eruptions on La Palma
-  happen every 79.8 years on average.</p>
-  <p>Studies of the magma systems feeding the volcano, such as Marrero
-  et al.
-  (<xref alt="2019" rid="ref-marrero2019" ref-type="bibr">2019</xref>),
-  have proposed that there are two main magma reservoirs feeding the
-  Cumbre Vieja volcano; one in the mantle (30-40km depth) which charges
-  and in turn feeds a shallower crustal reservoir (10-20km depth).</p>
-  <p>Eight eruptions have been recorded since the late 1400s
-  (<xref alt="Figure 1" rid="fig-timeline">Figure 1</xref>).</p>
-  <p>Data and methods are discussed in
-  <xref alt="Section 2" rid="sec-data-methods">Section 2</xref>.</p>
-  <p>Let <inline-formula><alternatives>
-  <tex-math><![CDATA[x]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>x</mml:mi></mml:math></alternatives></inline-formula>
-  denote the number of eruptions in a year. Then,
-  <inline-formula><alternatives>
-  <tex-math><![CDATA[x]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>x</mml:mi></mml:math></alternatives></inline-formula>
-  can be modeled by a Poisson distribution</p>
-  <p><styled-content id="eq-poisson"><disp-formula><alternatives>
-  <tex-math><![CDATA[
-  p(x) = \frac{e^{-\lambda} \lambda^{x}}{x !}
-   \qquad(1)]]></tex-math>
-  <mml:math display="block" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>p</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="postfix">)</mml:mo><mml:mo>=</mml:mo><mml:mfrac><mml:mrow><mml:msup><mml:mi>e</mml:mi><mml:mrow><mml:mi>−</mml:mi><mml:mi>λ</mml:mi></mml:mrow></mml:msup><mml:msup><mml:mi>λ</mml:mi><mml:mi>x</mml:mi></mml:msup></mml:mrow><mml:mrow><mml:mi>x</mml:mi><mml:mi>!</mml:mi></mml:mrow></mml:mfrac><mml:mspace width="2.0em"></mml:mspace><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mn>1</mml:mn><mml:mo stretchy="false" form="postfix">)</mml:mo></mml:mrow></mml:math></alternatives></disp-formula></styled-content></p>
-  <p>where <inline-formula><alternatives>
-  <tex-math><![CDATA[\lambda]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>λ</mml:mi></mml:math></alternatives></inline-formula>
-  is the rate of eruptions per year. Using
-  <xref alt="Equation 1" rid="eq-poisson">Equation 1</xref>, the
-  probability of an eruption in the next <inline-formula><alternatives>
-  <tex-math><![CDATA[t]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>t</mml:mi></mml:math></alternatives></inline-formula>
-  years can be calculated.</p>
-  <fig id="tbl-history">
-    <caption><p>Table 1: Recent historic eruptions on La
-    Palma</p></caption>
-    <table-wrap>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Year</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Current</td>
-            <td>2021</td>
-          </tr>
-          <tr>
-            <td>Teneguía</td>
-            <td>1971</td>
-          </tr>
-          <tr>
-            <td>Nambroque</td>
-            <td>1949</td>
-          </tr>
-          <tr>
-            <td>El Charco</td>
-            <td>1712</td>
-          </tr>
-          <tr>
-            <td>Volcán San Antonio</td>
-            <td>1677</td>
-          </tr>
-          <tr>
-            <td>Volcán San Martin</td>
-            <td>1646</td>
-          </tr>
-          <tr>
-            <td>Tajuya near El Paso</td>
-            <td>1585</td>
-          </tr>
-          <tr>
-            <td>Montaña Quemada</td>
-            <td>1492</td>
-          </tr>
-        </tbody>
-      </table>
-    </table-wrap>
-  </fig>
-  <p><xref alt="Table 1" rid="tbl-history">Table 1</xref> summarises the
-  eruptions recorded since the colonization of the islands by Europeans
-  in the late 1400s.</p>
-  <fig id="fig-map">
-    <caption><p>Figure 2: Map of La Palma</p></caption>
-    <graphic mimetype="image" mime-subtype="png" xlink:href="images/la-palma-map.png" />
-  </fig>
-  <p>La Palma is one of the west most islands in the Volcanic
-  Archipelago of the Canary Islands
-  (<xref alt="Figure 2" rid="fig-map">Figure 2</xref>).</p>
-  <fig id="fig-spatial-plot">
-    <caption><p>Figure 3: Locations of earthquakes on La Palma since
-    2017</p></caption>
-    <graphic mimetype="image" mime-subtype="png" xlink:href="index_files/figure-jats/notebooks-explore-earthquakes-fig-spatial-plot-output-1.png" />
-  </fig>
-  <p><xref alt="Figure 3" rid="fig-spatial-plot">Figure 3</xref> shows
-  the location of recent Earthquakes on La Palma.</p>
+  <title>1. Introduction</title>
+  <p>We propose a set of open-source modular softwares for supervised
+  echoclassification using traditional ML:</p>
+  <list list-type="order">
+    <list-item>
+      <p>A minimalist echogram annotation tool (using a new standard,
+      Echoregions)</p>
+    </list-item>
+    <list-item>
+      <p>A Jupyter notebook workflow class to post-process annotated
+      regions and format output as ML-ready dataframe</p>
+    </list-item>
+    <list-item>
+      <p>Domain-specific ML tools sub-classing scikit-learn estimators
+      and implementing and extending the Escore method</p>
+    </list-item>
+  </list>
+  <p>As a demonstration we apply the Escore method to the ABRAÇOS
+  campaigns data.</p>
 </sec>
-<sec id="sec-data-methods">
-  <title>2 Data &amp; Methods</title>
+<sec id="tools-description">
+  <title>2. Tools description</title>
+  <sec id="echolabel-image-based-echogram-annotation-tool">
+    <title>2.1 <monospace>echolabel</monospace> image-based echogram
+    annotation tool</title>
+    <p>Echolabel is a minimalist Python application for interactive
+    echogram annotation. It is based on a simple design: converting
+    acoustic data into echogram images, and running an image annotation
+    software with a graphical user interface (GUI) to draw polygonal
+    shapes on those images. Our tool is free and open source, and
+    enables fast echogram annotation at low computational cost. Online
+    documentation is ongoing
+    (<ext-link ext-link-type="uri" xlink:href="https://echolabel.readthedocs.io/">https://echolabel.readthedocs.io/</ext-link>).</p>
+    <p>It wraps LabelMe
+    (<ext-link ext-link-type="uri" xlink:href="https://labelme.io/">https://labelme.io/</ext-link>),
+    is a popular image annotation software designed to build computer
+    vision datasets, which was inspired by the Massachusetts Institute
+    of Technology’s LabelMe web-based interface
+    (<xref alt="Russell et al., 2008" rid="ref-russell2008" ref-type="bibr">Russell
+    et al., 2008</xref>) and provides an open-source Python
+    implementation with added features. LabelMe runs locally. Its key
+    feature is a GUI built with PyQt5, allowing the user to draw shapes
+    (namely polygons and lines) over the images. The application is run
+    via its command line interface. Required arguments are source
+    (acoustic data file(s)) and output (annotation file). Echogram
+    visualization options can be specified, including mapped frequency
+    channels and color mapping. Options can be provided as command line
+    arguments or by editing the user’s configuration file, allowing
+    pre-defined setup.</p>
+    <p>When launched, the Echolabel reads the source data, chunks it
+    into fixed-width frames, and saves each frame’s metadata in cache.
+    Frames are then converted into images by scaling Sv, and applying a
+    color mapping. Single frequency echograms can be printed using any
+    matplotlib colormap. Three channels can be rendered simultaneously
+    using an RGB mapping
+    (<xref alt="Ariza et al., 2022" rid="ref-ariza2022" ref-type="bibr">Ariza
+    et al., 2022</xref>), providing visual intuition on the organisms’
+    frequency responses. Echogram images are saved in cache. If the
+    output file already exists, it is read and converted into Labelme’s
+    internal annotation format. The Labelme graphical user interface is
+    then launched. As long as the window remains open, the user can add
+    and edit shapes on the dataset’s images. When closing, shapes are
+    converted to (time, depth) coordinates using cached images metadata
+    and the annotation file is (over-)written. In case the output is
+    overwritten, a copy of the pre-session file is stored as
+    failsafe.</p>
+    <p>As input acoustic data, Echolabel expects Echopype-like products
+    i.e. gridded Sv data with “ping_time”, “depth” and “channel”
+    dimensions, as well as “Sv” and “frequency_nominal” variables. Since
+    Echopype’s format adapts ICES SONAR-netCDF4 convention
+    (<xref alt="Macaulay &amp; Peña, 2018" rid="ref-macaulay2018" ref-type="bibr">Macaulay
+    &amp; Peña, 2018</xref>), little to no conversion effort should be
+    required to use Echolabel on standard acoustic datasets. One or more
+    NetCDF files may be loaded depending on inter-file compatibility. A
+    Zarr store is also accepted as input.</p>
+    <p>Echolabel relies on Echoregions
+    (<ext-link ext-link-type="uri" xlink:href="https://github.com/echostack-org/echoregions">https://github.com/echostack-org/echoregions</ext-link>)
+    to represent and parse polygonal echogram annotations. Echoregions
+    is an interfacing package designed to represent acoustic data shapes
+    annotations in Python and easily plug into machine learning (ML)
+    pipelines. It is part of the Echostack suite
+    (<xref alt="Lee et al., 2024" rid="ref-lee2024" ref-type="bibr">Lee
+    et al., 2024</xref>). While still in development, it presents some
+    key features which motivated using it to handle Echolabel’s
+    annotations input-output, among which parsing and saving annotations
+    in EchoView’s EVR file formats in addition to CSV files. This
+    feature enables Echolabel’s output files to be converted to EVR
+    format easily. Further development of Echoregions should extend
+    compatibility to other echogram annotation formats
+    (<xref alt="Lee et al., 2024" rid="ref-lee2024" ref-type="bibr">Lee
+    et al., 2024</xref>). Another functionality is converting
+    annotations to machine learning ready masks (annotation to ML) and
+    generating annotation from ML predictions (ML to annotation).
+    Annotation to ML is the primary use case of Echolabel. Converting
+    echograms to images comes at a cost: losing time and depth label,
+    enforcing a 1:1 aspect ratio for sampled volumes, having no access
+    to the numeric values of pixels. However, many annotation tasks can
+    still be performed efficiently (identifying and delineating
+    aggregations, or finding regions of interest for the Escore
+    algorithm). Besides, image files are much lighter than original
+    data, and their rendering is optimized by LabelMe. This enables fast
+    scrolling through the echogram, and eventually improves user
+    experience and processing speed. A current limitation, however, is
+    LabelMe’s default smoothing behaviour. This blurs the signal at a
+    small scale when zooming and is problematic when looking for the
+    edge of an echogram feature. Echolabel currently deletes shapes that
+    span more than one echogram image. This is an issue when editing
+    annotation files made with a different software or image width.</p>
+  </sec>
+  <sec id="extractionworkflow-annotation-to-ml-tool">
+    <title>2.2 <monospace>ExtractionWorkflow</monospace>
+    annotation-to-ML tool</title>
+    <p>Once a set of echogram regions has been defined and stored as an
+    annotation file, using those within an ML pipeline requires
+    extracting the samples and assembling them as a dataframe.
+    Additionally, because of high pixel-wise variability in acoustic
+    response, delineating echogram features with polygons is often not
+    sufficient to catch the desired signal. Post-processing of regions,
+    for instance using frequency response clustering, can be necessary
+    to extract complex objects or reduce signal variability. Such a
+    treatment requires close supervision by the operator in order to
+    select meaningful data. The ExtractionWorkflow class provides a
+    framework and utilities for the post-processing of region data.
+    Parametrized by an acoustic dataset and the corresponding region
+    annotations (<monospace>Regions2D</monospace> object), it allows the
+    user to loop through all regions, perform a segmentation task, and
+    save or reject the result. Built to be used in a Jupyter notebook,
+    the workflow class also enables rich visualization of input and
+    results during processing. Plots include echograms and frequency
+    response statistics. Leveraging the hvplot library enables
+    interactive plots.</p>
+    <p>The core objective of the workflow is selecting a subset of each
+    region. This is done using a “segmenter”. The segmenter is a
+    scikit-learn Pipeline instance, using the region’s channel dimension
+    as features. While we show the use of our own model in the example
+    section, the user is allowed to set their own segmenter depending on
+    their extraction goals.</p>
+    <p>The workflow object stores the segmentation results and recipes
+    (segmentation model, selected segment) as files, enabling full
+    reproducibility of the interactive process. Processed regions are
+    tracked in the state YAML file. Processing state can be accessed
+    using the <monospace>status_report</monospace> method. Once the user
+    is satisfied with the processed regions, all samples can be exported
+    as a dataframe for further use in ML pipelines.</p>
+  </sec>
+  <sec id="escore-broad-ecosystem-semi-supervised-thresholding-package">
+    <title>2.3 <monospace>escore</monospace> broad-ecosystem
+    semi-supervised thresholding package</title>
+    <sec id="api-description">
+      <title>2.3.1 API description</title>
+    </sec>
+    <sec id="svs-algorithm">
+      <title>2.3.2 SVS algorithm</title>
+      <p>Algorithm description (Gary Vargas’ flow chart) Module
+      features.</p>
+    </sec>
+    <sec id="escore-model">
+      <title>2.3.3 Escore model</title>
+      <p><bold>Motivation and introduction</bold></p>
+      <p>The Ellipsoïd score (Escore) method is a dB-differencing method
+      introduced by Annasawmy et al.
+      (<xref alt="2024" rid="ref-annasawmy2024" ref-type="bibr">2024</xref>).
+      It is a generalization of the Z-score
+      (<xref alt="De Robertis et al., 2010" rid="ref-derobertis2010" ref-type="bibr">De
+      Robertis et al., 2010</xref>) for more than 2 frequencies.
+      Besides, the Escore is adapted to the lack of easily separable
+      aggregation and the sparsity of trawling coverage by relying on
+      RGB composite echogram scrutinizing.</p>
+      <p>The method was originally split into 6 steps. <italic>Step
+      1</italic>: using RGB echogram, identify regions of interest
+      (ROI), each containing a structure of interest with homogeneous
+      frequency responses. <italic>Step 2</italic>: use KMeans
+      clustering of ΔMVBS to select a subset of each ROI, discarding
+      inconsistent signal. The selected “clean” cluster is called an
+      echo-type. <italic>Step 3</italic>: cluster echo-type into
+      echo-classes using their mean frequency response. <italic>Step
+      4</italic>: If an echo-class’ dominant frequency is unique (not
+      shared by another echoclass), define having this dominant
+      frequency as a classification rule for this echo-class.
+      <italic>Step 5</italic> (fitting the Escore model): For all other
+      echo-classes, aggregate echotypes samples, and compute their means
+      and covariances in ΔMVBS space. For any echo-integrated cell i and
+      echo-class k, Escore(i, k) is defined as the squared-Mahalanobis
+      distance of i to distribution k in ΔMVBS space. Cell i is
+      classified in the echo-class with the lowest Escore, except if
+      this minimum is above a given threshold. <italic>Step 6</italic>:
+      Predict on a full acoustic dataset. See for Annasawmy et al.
+      (<xref alt="2024" rid="ref-annasawmy2024" ref-type="bibr">2024</xref>)
+      a more detailed explanation.</p>
+      <p><bold>Our implementation</bold></p>
+      <p>Our package implements the Escore method in Python with some
+      modifications. In a modular approach, the user is left to complete
+      step 1 with the echogram annotation of his choice, as long as the
+      annotation format can be read as a
+      <monospace>Regions2D</monospace> object. The
+      <monospace>ExtractionWorkflow</monospace> can then be used to
+      extract echo-types using KMeans as a segmenter with a
+      <inline-formula><alternatives>
+      <tex-math><![CDATA[\Delta \text{MVBS}]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi mathvariant="normal">Δ</mml:mi><mml:mtext mathvariant="normal">MVBS</mml:mtext></mml:mrow></mml:math></alternatives></inline-formula>
+      transform (completing step 2). In a very similar manner, step 3
+      can be achieved using the scikit-learn framework. We only provide
+      simple utility functions to inspect and evaluate clustering
+      performance. With regards to the model itself, we propose some
+      changes. To begin with, we dropped step 4, unsure of the
+      additional benefits compared to applying step 5 to all
+      echoclasses.</p>
+      <p>We designed a custom scikit-learn estimator called
+      <monospace>EscoreClassifier</monospace>. In a slight change from
+      the original description, we re-interpreted the Escore model as a
+      combination of Gaussian distributions in
+      <inline-formula><alternatives>
+      <tex-math><![CDATA[\Delta \text{MVBS}]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi mathvariant="normal">Δ</mml:mi><mml:mtext mathvariant="normal">MVBS</mml:mtext></mml:mrow></mml:math></alternatives></inline-formula>
+      space, one for each echo-class. Learning this supervised model
+      comes down to learning the parameters of those distributions,
+      i.e. still the echo-classes’ means and covariance matrices. The
+      model can then predict the Mahalanobis distance of a given point
+      <inline-formula><alternatives>
+      <tex-math><![CDATA[x]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>x</mml:mi></mml:math></alternatives></inline-formula>
+      to each distribution. That distance can in turn be used to compute
+      the likelihood of <inline-formula><alternatives>
+      <tex-math><![CDATA[\mathbb{P}(x|c)]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>ℙ</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="prefix">|</mml:mo><mml:mi>c</mml:mi><mml:mo stretchy="false" form="postfix">)</mml:mo></mml:mrow></mml:math></alternatives></inline-formula>
+      for any echo-class <inline-formula><alternatives>
+      <tex-math><![CDATA[c]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>c</mml:mi></mml:math></alternatives></inline-formula>.
+      This probabilistic formulation adds some interpretability to an
+      otherwise abstract distance measure. One could also want to derive
+      the posterior probabilities <inline-formula><alternatives>
+      <tex-math><![CDATA[\mathbb{P}(c|x)]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>ℙ</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>c</mml:mi><mml:mo stretchy="false" form="prefix">|</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="postfix">)</mml:mo></mml:mrow></mml:math></alternatives></inline-formula>,
+      but this is out of this work’s scope.</p>
+      <p>In addition to learned parameters, our model is also defined by
+      two hyper parameters corresponding to prediction thresholds. The
+      first one is equivalent to the original Escore threshold. It
+      defined the minimal likelihood for prediction. The second one is a
+      quality threshold controlling the maximum acceptable ratio of
+      likelihoods between the best and second best class. This avoids
+      predicting at the boundaries between echo-classes, which might be
+      welcome in some cases.</p>
+      <p>As a mathematical formulation, we consider a set of echoclasses
+      <inline-formula><alternatives>
+      <tex-math><![CDATA[C]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>C</mml:mi></mml:math></alternatives></inline-formula>,
+      and we assume that the conditional probability distribution of
+      each echoclass follows a normal distribution:</p>
+      <p><disp-formula><alternatives>
+      <tex-math><![CDATA[
+      \forall c \in C, \mathbb{P}(.|c) \sim \mathcal{N}(\mu_c, \Sigma_c)
+      ]]></tex-math>
+      <mml:math display="block" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mo>∀</mml:mo><mml:mi>c</mml:mi><mml:mo>∈</mml:mo><mml:mi>C</mml:mi><mml:mo>,</mml:mo><mml:mi>ℙ</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>.</mml:mi><mml:mo stretchy="false" form="prefix">|</mml:mo><mml:mi>c</mml:mi><mml:mo stretchy="false" form="postfix">)</mml:mo><mml:mo>∼</mml:mo><mml:mi>𝒩</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:msub><mml:mi>μ</mml:mi><mml:mi>c</mml:mi></mml:msub><mml:mo>,</mml:mo><mml:msub><mml:mi mathvariant="normal">Σ</mml:mi><mml:mi>c</mml:mi></mml:msub><mml:mo stretchy="false" form="postfix">)</mml:mo></mml:mrow></mml:math></alternatives></disp-formula></p>
+      <p>Assuming an <inline-formula><alternatives>
+      <tex-math><![CDATA[n]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>n</mml:mi></mml:math></alternatives></inline-formula>-dimensional
+      ΔMVBS space and <inline-formula><alternatives>
+      <tex-math><![CDATA[x \in \mathbb{R}^n]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>x</mml:mi><mml:mo>∈</mml:mo><mml:msup><mml:mi>ℝ</mml:mi><mml:mi>n</mml:mi></mml:msup></mml:mrow></mml:math></alternatives></inline-formula>,
+      the best and second best echoclass predictions for
+      <inline-formula><alternatives>
+      <tex-math><![CDATA[x]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>x</mml:mi></mml:math></alternatives></inline-formula>
+      can be defined as:</p>
+      <p><disp-formula><tex-math><![CDATA[
+      \DeclareMathOperator*{\argmax}{arg\,max}
+      c_1 = \argmax_c{\mathbb{P}(x|c)} \\
+      c_2 = \argmax_{c \neq c_1}{\mathbb{P}(x|c)}
+      ]]></tex-math></disp-formula></p>
+      <p>Our model is the prediction function f such that:</p>
+      <p><disp-formula><alternatives>
+      <tex-math><![CDATA[
+      f(x) = \left\{ \begin{array}{l}
+      -1 & : \mathbb{P}(x|c_1) < e_{\text{thresh}} \ \cup \ \mathbb{P}(x|c_2) / \mathbb{P}(x|c_1) >  q_{\text{thresh}}\\
+      c_1 & : else
+      \end{array} \right.
+      ]]></tex-math>
+      <mml:math display="block" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>f</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="postfix">)</mml:mo><mml:mo>=</mml:mo><mml:mrow><mml:mo stretchy="true" form="prefix">{</mml:mo><mml:mtable><mml:mtr><mml:mtd columnalign="left" style="text-align: left"><mml:mi>−</mml:mi><mml:mn>1</mml:mn></mml:mtd><mml:mtd columnalign="center" style="text-align: center"><mml:mo>:</mml:mo><mml:mi>ℙ</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="prefix">|</mml:mo><mml:msub><mml:mi>c</mml:mi><mml:mn>1</mml:mn></mml:msub><mml:mo stretchy="false" form="postfix">)</mml:mo><mml:mo>&lt;</mml:mo><mml:msub><mml:mi>e</mml:mi><mml:mtext mathvariant="normal">thresh</mml:mtext></mml:msub><mml:mspace width="0.222em"></mml:mspace><mml:mo>∪</mml:mo><mml:mspace width="0.222em"></mml:mspace><mml:mi>ℙ</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="prefix">|</mml:mo><mml:msub><mml:mi>c</mml:mi><mml:mn>2</mml:mn></mml:msub><mml:mo stretchy="false" form="postfix">)</mml:mo><mml:mi>/</mml:mi><mml:mi>ℙ</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="prefix">|</mml:mo><mml:msub><mml:mi>c</mml:mi><mml:mn>1</mml:mn></mml:msub><mml:mo stretchy="false" form="postfix">)</mml:mo><mml:mo>&gt;</mml:mo><mml:msub><mml:mi>q</mml:mi><mml:mtext mathvariant="normal">thresh</mml:mtext></mml:msub></mml:mtd></mml:mtr><mml:mtr><mml:mtd columnalign="left" style="text-align: left"><mml:msub><mml:mi>c</mml:mi><mml:mn>1</mml:mn></mml:msub></mml:mtd><mml:mtd columnalign="center" style="text-align: center"><mml:mo>:</mml:mo><mml:mi>e</mml:mi><mml:mi>l</mml:mi><mml:mi>s</mml:mi><mml:mi>e</mml:mi></mml:mtd></mml:mtr></mml:mtable></mml:mrow></mml:mrow></mml:math></alternatives></disp-formula></p>
+      <p>where <inline-formula><alternatives>
+      <tex-math><![CDATA[-1]]></tex-math>
+      <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>−</mml:mi><mml:mn>1</mml:mn></mml:mrow></mml:math></alternatives></inline-formula>
+      is a rejection value returned when the thresholds constraints are
+      violated.</p>
+      <p>Integrating into the scikit-learn API brings some notable
+      benefits. In particular, this unlocks support for cross validation
+      and a wide range of other machine learning utilities.</p>
+    </sec>
+  </sec>
 </sec>
-<sec id="conclusion">
-  <title>3 Conclusion</title>
+<sec id="case-study-echoclassification-in-high-diversity-context">
+  <title>3. Case-study: echoclassification in high diversity
+  context</title>
+  <sec id="data">
+    <title>3.1 Data</title>
+    <p>Two oceanographic surveys, ABRAÇOS I and ABRAÇOS II, were
+    performed in the Southwest tropical Atlantic in Austral spring 2015
+    (September 29-October 21) and fall 2017 (April 9-March 8), as part
+    of the project ‘Acoustics along the Brazilian coast’
+    (<xref alt="Bertrand, 2015" rid="ref-bertrand2015" ref-type="bibr">Bertrand,
+    2015</xref>,
+    <xref alt="2017" rid="ref-bertrand2017" ref-type="bibr">2017</xref>).
+    The study area encompassed the continental shelf and slope off
+    Northeast Brazil, and oceanic waters around the islands and
+    seamounts of the Fernando de Noronha Chain.</p>
+    <p>Acoustic transects were conducted perpendicularly over the
+    continental slope, and radially around the Rocas Atoll and the
+    Fernando de Noronha Archipelago 1. Acoustic data were collected with
+    a SIMRAD EK60 echosounder at 38, 70, 120 and 200 kHz, synchronously
+    transmitting every 2-3 s. Volume backscattering strength ‘Sv’ (dB re
+    1 m-1)
+    (<xref alt="Maclennan et al., 2002" rid="ref-maclennan2002" ref-type="bibr">Maclennan
+    et al., 2002</xref>) was recorded down to 700 m depth with a pulse
+    duration of 512 μs, beam angle of 7°, and a transmit power of 1000,
+    750 and 200 W at 38, 70 and 120 kHz, respectively. Standard target
+    calibration of the echosounder was conducted prior to data
+    acquisition
+    (<xref alt="Demer et al., 2015" rid="ref-demer2015" ref-type="bibr">Demer
+    et al., 2015</xref>).</p>
+  </sec>
+  <sec id="references">
+    <title>References</title>
+    <ref-list>
+      <ref id="ref-ariza2022">
+        <element-citation publication-type="article-journal">
+          <person-group person-group-type="author">
+            <name><surname>Ariza</surname><given-names>Alejandro</given-names></name>
+            <name><surname>Lebourges-Dhaussy</surname><given-names>Anne</given-names></name>
+            <name><surname>Nerini</surname><given-names>David</given-names></name>
+            <name><surname>Pauthenet</surname><given-names>Etienne</given-names></name>
+            <name><surname>Roudaut</surname><given-names>Gildas</given-names></name>
+            <name><surname>Assunção</surname><given-names>Ramilla</given-names></name>
+            <name><surname>Tosetto</surname><given-names>Everton</given-names></name>
+            <name><surname>Bertrand</surname><given-names>Arnaud</given-names></name>
+          </person-group>
+          <article-title>Acoustic seascape partitioning through functional data analysis</article-title>
+          <source>Journal of Biogeography</source>
+          <year iso-8601-date="2022-11-23">2022</year><month>11</month><day>23</day>
+          <uri>https://onlinelibrary.wiley.com/doi/10.1111/jbi.14534</uri>
+          <pub-id pub-id-type="doi">10.1111/jbi.14534</pub-id>
+          <fpage>jbi.14534</fpage>
+          <lpage></lpage>
+        </element-citation>
+      </ref>
+      <ref id="ref-russell2008">
+        <element-citation publication-type="article-journal">
+          <person-group person-group-type="author">
+            <name><surname>Russell</surname><given-names>Bryan C.</given-names></name>
+            <name><surname>Torralba</surname><given-names>Antonio</given-names></name>
+            <name><surname>Murphy</surname><given-names>Kevin P.</given-names></name>
+            <name><surname>Freeman</surname><given-names>William T.</given-names></name>
+          </person-group>
+          <article-title>LabelMe: A database and web-based tool for image annotation</article-title>
+          <source>International Journal of Computer Vision</source>
+          <year iso-8601-date="2008-05-01">2008</year><month>05</month><day>01</day>
+          <volume>77</volume>
+          <issue>1</issue>
+          <uri>https://doi.org/10.1007/s11263-007-0090-8</uri>
+          <pub-id pub-id-type="doi">10.1007/s11263-007-0090-8</pub-id>
+          <fpage>157</fpage>
+          <lpage>173</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ref-lee2024">
+        <element-citation publication-type="article-journal">
+          <person-group person-group-type="author">
+            <name><surname>Lee</surname><given-names>Wu-Jung</given-names></name>
+            <name><surname>Staneva</surname><given-names>Valentina</given-names></name>
+            <name><surname>Setiawan</surname><given-names>Landung “Don”</given-names></name>
+            <name><surname>Mayorga</surname><given-names>Emilio</given-names></name>
+            <name><surname>Tuguinay</surname><given-names>Caesar</given-names></name>
+            <name><surname>Butala</surname><given-names>Soham</given-names></name>
+            <name><surname>Lucca</surname><given-names>Brandyn</given-names></name>
+            <name><surname>Lei</surname><given-names>Dingrui</given-names></name>
+          </person-group>
+          <article-title>Echostack: A flexible and scalable open-source software suite for echosounder data processing</article-title>
+          <source>Python in Science Conference</source>
+          <year iso-8601-date="2024-06-03">2024</year><month>06</month><day>03</day>
+          <uri>https://proceedings.scipy.org/articles/WXRH8633</uri>
+          <pub-id pub-id-type="doi">10.25080/WXRH8633</pub-id>
+          <fpage>386</fpage>
+          <lpage>397</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ref-macaulay2018">
+        <element-citation publication-type="report">
+          <person-group person-group-type="author">
+            <name><surname>Macaulay</surname><given-names>Gavin</given-names></name>
+            <name><surname>Peña</surname><given-names>Hector</given-names></name>
+          </person-group>
+          <article-title>The SONAR-netCDF4 convention for sonar data, version 1.0</article-title>
+          <year iso-8601-date="2018-05-01">2018</year><month>05</month><day>01</day>
+          <uri>https://ices-library.figshare.com/articles/report/The_SONAR-netCDF4_convention_for_sonar_data_Version_1_0/18624056/1</uri>
+          <pub-id pub-id-type="doi">10.17895/ices.pub.4392</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="ref-annasawmy2024">
+        <element-citation publication-type="article-journal">
+          <person-group person-group-type="author">
+            <name><surname>Annasawmy</surname><given-names>Pavanee</given-names></name>
+            <name><surname>Roudaut</surname><given-names>Gildas</given-names></name>
+            <name><surname>Lebourges-Dhaussy</surname><given-names>Anne</given-names></name>
+          </person-group>
+          <article-title>Impact of an eddy dipole of the mozambique channel on mesopelagic organisms, highlighted by multifrequency backscatter classification</article-title>
+          <source>PLOS ONE</source>
+          <year iso-8601-date="2024-09-11">2024</year><month>09</month><day>11</day>
+          <volume>19</volume>
+          <issue>9</issue>
+          <uri>https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0309840</uri>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0309840</pub-id>
+          <fpage>e0309840</fpage>
+          <lpage></lpage>
+        </element-citation>
+      </ref>
+      <ref id="ref-derobertis2010">
+        <element-citation publication-type="article-journal">
+          <person-group person-group-type="author">
+            <name><surname>De Robertis</surname><given-names>Alex</given-names></name>
+            <name><surname>McKelvey</surname><given-names>Denise R.</given-names></name>
+            <name><surname>Ressler</surname><given-names>Patrick H.</given-names></name>
+          </person-group>
+          <article-title>Development and application of an empirical multifrequency method for backscatter classification</article-title>
+          <source>Canadian Journal of Fisheries and Aquatic Sciences</source>
+          <year iso-8601-date="2010-09">2010</year><month>09</month>
+          <volume>67</volume>
+          <issue>9</issue>
+          <uri>https://cdnsciencepub.com/doi/full/10.1139/F10-075</uri>
+          <pub-id pub-id-type="doi">10.1139/F10-075</pub-id>
+          <fpage>1459</fpage>
+          <lpage>1474</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ref-bertrand2015">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name><surname>Bertrand</surname><given-names>Gildas AND Lebourges-Dhaussy</given-names><suffix>Arnaud AND Roudaut</suffix></name>
+          </person-group>
+          <article-title>ABRACOS 1 cruise. Acoustic data</article-title>
+          <person-group person-group-type="editor">
+            <name><surname>SEANOE</surname></name>
+          </person-group>
+          <year iso-8601-date="2015">2015</year>
+          <uri>https://doi.org/10.17882/77035</uri>
+          <pub-id pub-id-type="doi">10.17882/77035</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="ref-bertrand2017">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name><surname>Bertrand</surname><given-names>Gildas AND Lebourges-Dhaussy</given-names><suffix>Arnaud AND Roudaut</suffix></name>
+          </person-group>
+          <article-title>ABRACOS 2 cruise. Acoustic data</article-title>
+          <person-group person-group-type="editor">
+            <name><surname>SEANOE</surname></name>
+          </person-group>
+          <year iso-8601-date="2017">2017</year>
+          <uri>https://doi.org/10.17882/91135</uri>
+          <pub-id pub-id-type="doi">10.17882/91135</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="ref-maclennan2002">
+        <element-citation publication-type="article-journal">
+          <person-group person-group-type="author">
+            <name><surname>Maclennan</surname><given-names>David N.</given-names></name>
+            <name><surname>Fernandes</surname><given-names>Paul G.</given-names></name>
+            <name><surname>Dalen</surname><given-names>John</given-names></name>
+          </person-group>
+          <article-title>A consistent approach to definitions and symbols in fisheries acoustics</article-title>
+          <source>ICES Journal of Marine Science</source>
+          <year iso-8601-date="2002-01-01">2002</year><month>01</month><day>01</day>
+          <volume>59</volume>
+          <issue>2</issue>
+          <uri>https://doi.org/10.1006/jmsc.2001.1158</uri>
+          <pub-id pub-id-type="doi">10.1006/jmsc.2001.1158</pub-id>
+          <fpage>365</fpage>
+          <lpage>369</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ref-demer2015">
+        <element-citation publication-type="article-journal">
+          <person-group person-group-type="author">
+            <name><surname>Demer</surname><given-names>David A.</given-names></name>
+            <name><surname>Berger</surname><given-names>Laurent</given-names></name>
+            <name><surname>Bernasconi</surname><given-names>Matteo</given-names></name>
+            <name><surname>Bethke</surname><given-names>Eckhard</given-names></name>
+            <name><surname>Boswell</surname><given-names>Kevin</given-names></name>
+            <name><surname>Chu</surname><given-names>Dezhang</given-names></name>
+            <name><surname>Domokos</surname><given-names>Reka</given-names></name>
+            <name><surname>Dunford</surname><given-names>Adam</given-names></name>
+            <name><surname>Fassler</surname><given-names>Sascha</given-names></name>
+            <name><surname>Gauthier</surname><given-names>Stephane</given-names></name>
+            <name><surname>Hufnagle</surname><given-names>Lawrence T.</given-names></name>
+            <name><surname>Jech</surname><given-names>J. Michael</given-names></name>
+            <name><surname>Bouffant</surname><given-names>Naigle</given-names></name>
+            <name><surname>Lebourges-Dhaussy</surname><given-names>Anne</given-names></name>
+            <name><surname>Lurton</surname><given-names>Xavier</given-names></name>
+            <name><surname>Macaulay</surname><given-names>Gavin J.</given-names></name>
+            <name><surname>Perrot</surname><given-names>Yannick</given-names></name>
+            <name><surname>Ryan</surname><given-names>Tim</given-names></name>
+            <name><surname>Parker-Stetter</surname><given-names>Sandra</given-names></name>
+            <name><surname>Stienessen</surname><given-names>Sarah</given-names></name>
+            <name><surname>Weber</surname><given-names>Thomas</given-names></name>
+            <name><surname>Williamson</surname><given-names>Neal</given-names></name>
+          </person-group>
+          <article-title>Calibration of acoustic instruments.</article-title>
+          <year iso-8601-date="2015">2015</year>
+          <uri>https://repository.oceanbestpractices.org/handle/11329/626</uri>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </sec>
 </sec>
 </body>
 
 <back>
-<ref-list>
-  <title>References</title>
-  <ref id="ref-marrero2019">
-    <element-citation publication-type="article-journal">
-      <person-group person-group-type="author">
-        <name><surname>Marrero</surname><given-names>José</given-names></name>
-        <name><surname>García</surname><given-names>Alicia</given-names></name>
-        <name><surname>Berrocoso</surname><given-names>Manuel</given-names></name>
-        <name><surname>Llinares</surname><given-names>Ángeles</given-names></name>
-        <name><surname>Rodríguez-Losada</surname><given-names>Antonio</given-names></name>
-        <name><surname>Ortiz</surname><given-names>R.</given-names></name>
-      </person-group>
-      <article-title>Strategies for the development of volcanic hazard maps in monogenetic volcanic fields: The example of La Palma (Canary Islands)</article-title>
-      <source>Journal of Applied Volcanology</source>
-      <year iso-8601-date="2019-07">2019</year><month>07</month>
-      <volume>8</volume>
-      <pub-id pub-id-type="doi">10.1186/s13617-019-0085-5</pub-id>
-      <fpage></fpage>
-      <lpage></lpage>
-    </element-citation>
-  </ref>
-</ref-list>
-</back>
-
-<sub-article article-type="notebook" id="nb-8-nb-article">
-<front-stub>
-<title-group>
-<article-title>La Palma Earthquakes</article-title>
-</title-group>
-<contrib-group>
-<contrib contrib-type="author" corresp="yes">
-<contrib-id contrib-id-type="orcid">0000-0002-0760-5497</contrib-id>
-<name>
-<surname>Purves</surname>
-<given-names>Steve</given-names>
-</name>
-<string-name>Steve Purves</string-name>
-
-<email>steve@curvenote.com</email>
-<role vocab="https://credit.niso.org" vocab-term="investigation" vocab-term-identifier="https://credit.niso.org/contributor-roles/investigation/">Investigation</role>
-<role vocab="https://credit.niso.org" vocab-term="project
-administration" vocab-term-identifier="https://credit.niso.org/contributor-roles/project-administration/">Project
-administration</role>
-<role vocab="https://credit.niso.org" vocab-term="software" vocab-term-identifier="https://credit.niso.org/contributor-roles/software/">Software</role>
-<role vocab="https://credit.niso.org" vocab-term="visualization" vocab-term-identifier="https://credit.niso.org/contributor-roles/visualization/">Visualization</role>
-<xref ref-type="aff" rid="aff-1-nb-article">a</xref>
-<xref ref-type="corresp" rid="cor-1-nb-article">&#x002A;</xref>
-</contrib>
-<contrib contrib-type="author">
-<contrib-id contrib-id-type="orcid">0000-0002-7859-8394</contrib-id>
-<name>
-<surname>Cockett</surname>
-<given-names>Rowan</given-names>
-</name>
-<string-name>Rowan Cockett</string-name>
-
-<xref ref-type="aff" rid="aff-1-nb-article">a</xref>
-</contrib>
-</contrib-group>
-<aff id="aff-1-nb-article">
-<institution-wrap>
-<institution>Curvenote</institution>
-</institution-wrap>
-
-
-
-
-
-
-
-</aff>
-<author-notes>
-<corresp id="cor-1-nb-article">steve@curvenote.com</corresp>
-</author-notes>
-<abstract>
-<p>In September 2021, a significant jump in seismic activity on the
-island of La Palma (Canary Islands, Spain) signaled the start of a
-volcanic crisis that still continues at the time of writing. Earthquake
-data is continually collected and published by the Instituto Geográphico
-Nacional (IGN). …</p>
-</abstract>
-</front-stub>
-
-<body>
-<sec id="introduction-nb-article">
-  <title>1 Introduction</title>
-  <sec specific-use="notebook-content">
-  <code language="r script">eruptions &lt;- c(1492, 1585, 1646, 1677, 1712, 1949, 1971, 2021)
-n_eruptions &lt;- length(eruptions)</code>
-  </sec>
-  <sec id="cell-fig-timeline-nb-article" specific-use="notebook-content">
-  <code language="r script">par(mar = c(3, 1, 1, 1) + 0.1)
-plot(eruptions, rep(0, n_eruptions), 
-  pch = &quot;|&quot;, axes = FALSE)
-axis(1)
-box()</code>
-  <fig id="fig-timeline-nb-article">
-    <caption><p>Figure 1: Timeline of recent earthquakes on La
-    Palma</p></caption>
-    <graphic mimetype="image" mime-subtype="png" xlink:href="index_files/figure-jats/fig-timeline-1.png" />
-  </fig>
-  </sec>
-  <sec specific-use="notebook-content">
-  <code language="r script">avg_years_between_eruptions &lt;- mean(diff(eruptions[-n_eruptions]))
-avg_years_between_eruptions</code>
-  <boxed-text>
-    <preformat>[1] 79.83333</preformat>
-  </boxed-text>
-  </sec>
-  <p>Based on data up to and including 1971, eruptions on La Palma
-  happen every 79.8 years on average.</p>
-  <p>Studies of the magma systems feeding the volcano, such as Marrero
-  et al.
-  (<xref alt="2019" rid="ref-marrero2019-nb-article" ref-type="bibr">2019</xref>),
-  have proposed that there are two main magma reservoirs feeding the
-  Cumbre Vieja volcano; one in the mantle (30-40km depth) which charges
-  and in turn feeds a shallower crustal reservoir (10-20km depth).</p>
-  <p>Eight eruptions have been recorded since the late 1400s
-  (<xref alt="Figure 1" rid="fig-timeline-nb-article">Figure 1</xref>).</p>
-  <p>Data and methods are discussed in
-  <xref alt="Section 2" rid="sec-data-methods-nb-article">Section 2</xref>.</p>
-  <p>Let <inline-formula><alternatives>
-  <tex-math><![CDATA[x]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>x</mml:mi></mml:math></alternatives></inline-formula>
-  denote the number of eruptions in a year. Then,
-  <inline-formula><alternatives>
-  <tex-math><![CDATA[x]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>x</mml:mi></mml:math></alternatives></inline-formula>
-  can be modeled by a Poisson distribution</p>
-  <p><styled-content id="eq-poisson-nb-article"><disp-formula><alternatives>
-  <tex-math><![CDATA[
-  p(x) = \frac{e^{-\lambda} \lambda^{x}}{x !}
-   \qquad(1)]]></tex-math>
-  <mml:math display="block" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mrow><mml:mi>p</mml:mi><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mi>x</mml:mi><mml:mo stretchy="false" form="postfix">)</mml:mo><mml:mo>=</mml:mo><mml:mfrac><mml:mrow><mml:msup><mml:mi>e</mml:mi><mml:mrow><mml:mi>−</mml:mi><mml:mi>λ</mml:mi></mml:mrow></mml:msup><mml:msup><mml:mi>λ</mml:mi><mml:mi>x</mml:mi></mml:msup></mml:mrow><mml:mrow><mml:mi>x</mml:mi><mml:mi>!</mml:mi></mml:mrow></mml:mfrac><mml:mspace width="2.0em"></mml:mspace><mml:mo stretchy="false" form="prefix">(</mml:mo><mml:mn>1</mml:mn><mml:mo stretchy="false" form="postfix">)</mml:mo></mml:mrow></mml:math></alternatives></disp-formula></styled-content></p>
-  <p>where <inline-formula><alternatives>
-  <tex-math><![CDATA[\lambda]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>λ</mml:mi></mml:math></alternatives></inline-formula>
-  is the rate of eruptions per year. Using
-  <xref alt="Equation 1" rid="eq-poisson-nb-article">Equation 1</xref>, the
-  probability of an eruption in the next <inline-formula><alternatives>
-  <tex-math><![CDATA[t]]></tex-math>
-  <mml:math display="inline" xmlns:mml="http://www.w3.org/1998/Math/MathML"><mml:mi>t</mml:mi></mml:math></alternatives></inline-formula>
-  years can be calculated.</p>
-  <fig id="tbl-history-nb-article">
-    <caption><p>Table 1: Recent historic eruptions on La
-    Palma</p></caption>
-    <table-wrap>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Year</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Current</td>
-            <td>2021</td>
-          </tr>
-          <tr>
-            <td>Teneguía</td>
-            <td>1971</td>
-          </tr>
-          <tr>
-            <td>Nambroque</td>
-            <td>1949</td>
-          </tr>
-          <tr>
-            <td>El Charco</td>
-            <td>1712</td>
-          </tr>
-          <tr>
-            <td>Volcán San Antonio</td>
-            <td>1677</td>
-          </tr>
-          <tr>
-            <td>Volcán San Martin</td>
-            <td>1646</td>
-          </tr>
-          <tr>
-            <td>Tajuya near El Paso</td>
-            <td>1585</td>
-          </tr>
-          <tr>
-            <td>Montaña Quemada</td>
-            <td>1492</td>
-          </tr>
-        </tbody>
-      </table>
-    </table-wrap>
-  </fig>
-  <p><xref alt="Table 1" rid="tbl-history-nb-article">Table 1</xref> summarises the
-  eruptions recorded since the colonization of the islands by Europeans
-  in the late 1400s.</p>
-  <fig id="fig-map-nb-article">
-    <caption><p>Figure 2: Map of La Palma</p></caption>
-    <graphic mimetype="image" mime-subtype="png" xlink:href="images/la-palma-map.png" />
-  </fig>
-  <p>La Palma is one of the west most islands in the Volcanic
-  Archipelago of the Canary Islands
-  (<xref alt="Figure 2" rid="fig-map-nb-article">Figure 2</xref>).</p>
-  <sec id="cell-fig-spatial-plot-nb-article" specific-use="notebook-content">
-  <code language="python">la_palma |&gt; 
-  ggplot(aes(Longitude, Latitude)) +
-  geom_point(aes(color = Magnitude, size = 40-`Depth(km)`)) +
-  scale_color_viridis_c(direction = -1) + 
-  scale_size(range = c(0.5, 2), guide = &quot;none&quot;) +
-  theme_bw()</code>
-  <boxed-text>
-    <fig id="fig-spatial-plot-nb-article">
-      <caption><p>Figure 3: Locations of earthquakes on La Palma since
-      2017</p></caption>
-      <graphic mimetype="image" mime-subtype="png" xlink:href="index_files/figure-jats/notebooks-explore-earthquakes-fig-spatial-plot-output-1.png" />
-    </fig>
-  </boxed-text>
-  </sec>
-  <p><xref alt="Figure 3" rid="fig-spatial-plot-nb-article">Figure 3</xref> shows
-  the location of recent Earthquakes on La Palma.</p>
-</sec>
-<sec id="sec-data-methods-nb-article">
-  <title>2 Data &amp; Methods</title>
-</sec>
-<sec id="conclusion-nb-article">
-  <title>3 Conclusion</title>
-</sec>
-</body>
-
-
-
-<back>
-<ref-list>
-  <title>References</title>
-  <ref id="ref-marrero2019-nb-article">
-    <element-citation publication-type="article-journal">
-      <person-group person-group-type="author">
-        <name><surname>Marrero</surname><given-names>José</given-names></name>
-        <name><surname>García</surname><given-names>Alicia</given-names></name>
-        <name><surname>Berrocoso</surname><given-names>Manuel</given-names></name>
-        <name><surname>Llinares</surname><given-names>Ángeles</given-names></name>
-        <name><surname>Rodríguez-Losada</surname><given-names>Antonio</given-names></name>
-        <name><surname>Ortiz</surname><given-names>R.</given-names></name>
-      </person-group>
-      <article-title>Strategies for the development of volcanic hazard maps in monogenetic volcanic fields: The example of La Palma (Canary Islands)</article-title>
-      <source>Journal of Applied Volcanology</source>
-      <year iso-8601-date="2019-07">2019</year><month>07</month>
-      <volume>8</volume>
-      <pub-id pub-id-type="doi">10.1186/s13617-019-0085-5</pub-id>
-      <fpage></fpage>
-      <lpage></lpage>
-    </element-citation>
-  </ref>
-</ref-list>
 </back>
 
 
-</sub-article>
-<sub-article article-type="notebook" id="nb-4-nb-1">
-<front-stub>
-<title-group>
-<article-title>Explore Earthquakes</article-title>
-</title-group>
-<contrib-group>
-<contrib contrib-type="author">
-<name>
-<surname>Wickham</surname>
-<given-names>Charlotte</given-names>
-</name>
-<string-name>Charlotte Wickham</string-name>
-
-</contrib>
-</contrib-group>
-</front-stub>
-
-<body>
-<sec specific-use="notebook-content">
-<code language="r script">library(tidyverse)
-</code>
-<boxed-text>
-  <preformat>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.5
-✔ forcats   1.0.0     ✔ stringr   1.5.1
-✔ ggplot2   3.5.0     ✔ tibble    3.2.1
-✔ lubridate 1.9.3     ✔ tidyr     1.3.1
-✔ purrr     1.0.2     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</preformat>
-</boxed-text>
-</sec>
-<p>Read a clean version of data:</p>
-<sec specific-use="notebook-content">
-<code language="r script">la_palma &lt;- read_csv(&quot;la-palma.csv&quot;)
-</code>
-<boxed-text>
-  <preformat>Rows: 11347 Columns: 5
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: &quot;,&quot;
-dbl  (4): Longitude, Latitude, Depth(km), Magnitude
-dttm (1): DateTime
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</preformat>
-</boxed-text>
-</sec>
-<p>Create spatial plot:</p>
-<sec id="cell-fig-spatial-plot-nb-1" specific-use="notebook-content">
-<code language="r script">#|   against longitude.&quot;
-la_palma |&gt; 
-  ggplot(aes(Longitude, Latitude)) +
-  geom_point(aes(color = Magnitude, size = 40-`Depth(km)`)) +
-  scale_color_viridis_c(direction = -1) + 
-  scale_size(range = c(0.5, 2), guide = &quot;none&quot;) +
-  theme_bw()
-</code>
-<fig id="fig-spatial-plot-nb-1">
-  <caption><p>Locations of earthquakes on La Palma since
-  2017</p></caption>
-  <graphic mimetype="image" mime-subtype="png" xlink:href="explore-earthquakes_files/figure-jats/fig-spatial-plot-1.png" />
-</fig>
-</sec>
-</body>
-
-
-
-<back>
-</back>
-
-
-</sub-article>
 
 </article>
