@@ -8,10 +8,10 @@ format:
   html:
     toc: true
     comments:
-      hypothesis: true
+      hypothesis:
+        true
   docx: default
   jats: default
-  agu-pdf: default
 
 
 

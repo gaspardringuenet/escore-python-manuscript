@@ -1,111 +1,117 @@
 ---
-title: La Palma Earthquakes
+title: Open-Source Python Tools for Annotation and Classification of Marine Acoustic Backscattering
 author:
-  - name: Steve Purves
-    orcid: 0000-0002-0760-5497
+  - name: Gaspard Ringuenet
+    orcid: 0009-0003-4820-6999
     corresponding: true
-    email: steve@curvenote.com
+    email: gaspard.ringuenet@umontpellier.fr
     roles:
-      - Investigation
-      - Project administration
+      - Writiing
       - Software
       - Visualization
     affiliations:
-      - Curvenote
-  - name: Rowan Cockett
-    orcid: 0000-0002-7859-8394
-    corresponding: false
-    roles: []
-    affiliations:
-      - Curvenote
+      - University of Montpellier
 keywords:
-  - La Palma
-  - Earthquakes
-abstract: |
-  In September 2021, a significant jump in seismic activity on the island of La Palma (Canary Islands, Spain) signaled the start of a volcanic crisis that still continues at the time of writing. Earthquake data is continually collected and published by the Instituto Geográphico Nacional (IGN). ...
-plain-language-summary: |
-  Earthquake data for the island of La Palma from the September 2021 eruption is found ...
-key-points:
-  - A web scraping script was developed to pull data from the Instituto Geogràphico Nacional into a machine-readable form for analysis
-  - Earthquake events on La Palma are consistent with the presence of both mantle and crustal reservoirs.
+  - Multi-frequency acoustics
+  - Machine Learning
 date: last-modified
 bibliography: references.bib
-citation:
-  container-title: Earth and Space Science
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
 number-sections: true
 ---
 
-## Introduction
+# Introduction
 
-```{r}
-eruptions <- c(1492, 1585, 1646, 1677, 1712, 1949, 1971, 2021)
-n_eruptions <- length(eruptions)
-```
+We propose a set of open-source modular softwares for supervised echoclassification using traditional ML:
 
-```{r}
-#| label: fig-timeline
-#| fig-cap: Timeline of recent earthquakes on La Palma
-#| fig-alt: An event plot of the years of the last 8 eruptions on La Palma.
-#| fig-height: 1.5
-#| fig-width: 6
-par(mar = c(3, 1, 1, 1) + 0.1)
-plot(eruptions, rep(0, n_eruptions), 
-  pch = "|", axes = FALSE)
-axis(1)
-box()
-```
+1.  A minimalist echogram annotation tool (using a new standard, Echoregions)
+2.  A Jupyter notebook workflow class to post-process annotated regions and format output as ML-ready dataframe
+3.  Domain-specific ML tools sub-classing scikit-learn estimators and implementing and extending the Escore method
 
-```{r}
-#| output: false
-avg_years_between_eruptions <- mean(diff(eruptions[-n_eruptions]))
-avg_years_between_eruptions
-```
+As a demonstration we apply the Escore method to the ABRAÇOS campaigns data.
 
-Based on data up to and including 1971, eruptions on La Palma happen every `{r} round(avg_years_between_eruptions, 1)` years on average.
+# Tools description
 
-Studies of the magma systems feeding the volcano, such as @marrero2019, have proposed that there are two main magma reservoirs feeding the Cumbre Vieja volcano; one in the mantle (30-40km depth) which charges and in turn feeds a shallower crustal reservoir (10-20km depth).
+## `echolabel` image-based echogram annotation tool
 
-Eight eruptions have been recorded since the late 1400s (@fig-timeline).
+Echolabel is a minimalist Python application for interactive echogram annotation. It is based on a simple design: converting acoustic data into echogram images, and running an image annotation software with a graphical user interface (GUI) to draw polygonal shapes on those images. Our tool is free and open source, and enables fast echogram annotation at low computational cost. Online documentation is ongoing (<https://echolabel.readthedocs.io/>).
 
-Data and methods are discussed in @sec-data-methods.
+It wraps LabelMe (<https://labelme.io/>), is a popular image annotation software designed to build computer vision datasets, which was inspired by the Massachusetts Institute of Technology’s LabelMe web-based interface [@russell2008] and provides an open-source Python implementation with added features. LabelMe runs locally. Its key feature is a GUI built with PyQt5, allowing the user to draw shapes (namely polygons and lines) over the images. The application is run via its command line interface. Required arguments are source (acoustic data file(s)) and output (annotation file). Echogram visualization options can be specified, including mapped frequency channels and color mapping. Options can be provided as command line arguments or by editing the user’s configuration file, allowing pre-defined setup.
 
-Let $x$ denote the number of eruptions in a year. Then, $x$ can be modeled by a Poisson distribution
+When launched, the Echolabel reads the source data, chunks it into fixed-width frames, and saves each frame’s metadata in cache. Frames are then converted into images by scaling Sv, and applying a color mapping. Single frequency echograms can be printed using any matplotlib colormap. Three channels can be rendered simultaneously using an RGB mapping [@ariza2022], providing visual intuition on the organisms’ frequency responses. Echogram images are saved in cache. If the output file already exists, it is read and converted into Labelme’s internal annotation format. The Labelme graphical user interface is then launched. As long as the window remains open, the user can add and edit shapes on the dataset’s images. When closing, shapes are converted to (time, depth) coordinates using cached images metadata and the annotation file is (over-)written. In case the output is overwritten, a copy of the pre-session file is stored as failsafe.
+
+As input acoustic data, Echolabel expects Echopype-like products i.e. gridded Sv data with “ping_time”, “depth” and “channel” dimensions, as well as “Sv” and “frequency_nominal” variables. Since Echopype’s format adapts ICES SONAR-netCDF4 convention [@macaulay2018], little to no conversion effort should be required to use Echolabel on standard acoustic datasets. One or more NetCDF files may be loaded depending on inter-file compatibility. A Zarr store is also accepted as input.
+
+Echolabel relies on Echoregions (<https://github.com/echostack-org/echoregions>) to represent and parse polygonal echogram annotations. Echoregions is an interfacing package designed to represent acoustic data shapes annotations in Python and easily plug into machine learning (ML) pipelines. It is part of the Echostack suite [@lee2024]. While still in development, it presents some key features which motivated using it to handle Echolabel’s annotations input-output, among which parsing and saving annotations in EchoView’s EVR file formats in addition to CSV files. This feature enables Echolabel’s output files to be converted to EVR format easily. Further development of Echoregions should extend compatibility to other echogram annotation formats [@lee2024]. Another functionality is converting annotations to machine learning ready masks (annotation to ML) and generating annotation from ML predictions (ML to annotation). Annotation to ML is the primary use case of Echolabel. Converting echograms to images comes at a cost: losing time and depth label, enforcing a 1:1 aspect ratio for sampled volumes, having no access to the numeric values of pixels. However, many annotation tasks can still be performed efficiently (identifying and delineating aggregations, or finding regions of interest for the Escore algorithm). Besides, image files are much lighter than original data, and their rendering is optimized by LabelMe. This enables fast scrolling through the echogram, and eventually improves user experience and processing speed. A current limitation, however, is LabelMe’s default smoothing behaviour. This blurs the signal at a small scale when zooming and is problematic when looking for the edge of an echogram feature. Echolabel currently deletes shapes that span more than one echogram image. This is an issue when editing annotation files made with a different software or image width.
+
+## `ExtractionWorkflow` annotation-to-ML tool
+
+Once a set of echogram regions has been defined and stored as an annotation file, using those within an ML pipeline requires extracting the samples and assembling them as a dataframe. Additionally, because of high pixel-wise variability in acoustic response, delineating echogram features with polygons is often not sufficient to catch the desired signal. Post-processing of regions, for instance using frequency response clustering, can be necessary to extract complex objects or reduce signal variability. Such a treatment requires close supervision by the operator in order to select meaningful data. The ExtractionWorkflow class provides a framework and utilities for the post-processing of region data. Parametrized by an acoustic dataset and the corresponding region annotations (`Regions2D` object), it allows the user to loop through all regions, perform a segmentation task, and save or reject the result. Built to be used in a Jupyter notebook, the workflow class also enables rich visualization of input and results during processing. Plots include echograms and frequency response statistics. Leveraging the hvplot library enables interactive plots.
+
+The core objective of the workflow is selecting a subset of each region. This is done using a “segmenter”. The segmenter is a scikit-learn Pipeline instance, using the region’s channel dimension as features. While we show the use of our own model in the example section, the user is allowed to set their own segmenter depending on their extraction goals.
+
+The workflow object stores the segmentation results and recipes (segmentation model, selected segment) as files, enabling full reproducibility of the interactive process. Processed regions are tracked in the state YAML file. Processing state can be accessed using the `status_report` method. Once the user is satisfied with the processed regions, all samples can be exported as a dataframe for further use in ML pipelines.
+
+## `escore` broad-ecosystem semi-supervised thresholding package
+
+### API description
+
+### SVS algorithm
+
+Algorithm description (Gary Vargas’ flow chart) Module features.
+
+### Escore model
+
+**Motivation and introduction**
+
+The Ellipsoïd score (Escore) method is a dB-differencing method introduced by @annasawmy2024. It is a generalization of the Z-score [@derobertis2010] for more than 2 frequencies. Besides, the Escore is adapted to the lack of easily separable aggregation and the sparsity of trawling coverage by relying on RGB composite echogram scrutinizing.
+
+The method was originally split into 6 steps. *Step 1*: using RGB echogram, identify regions of interest (ROI), each containing a structure of interest with homogeneous frequency responses. *Step 2*: use KMeans clustering of ΔMVBS to select a subset of each ROI, discarding inconsistent signal. The selected “clean” cluster is called an echo-type. *Step 3*: cluster echo-type into echo-classes using their mean frequency response. *Step 4*: If an echo-class’ dominant frequency is unique (not shared by another echoclass), define having this dominant frequency as a classification rule for this echo-class. *Step 5* (fitting the Escore model): For all other echo-classes, aggregate echotypes samples, and compute their means and covariances in ΔMVBS space. For any echo-integrated cell i and echo-class k, Escore(i, k) is defined as the squared-Mahalanobis distance of i to distribution k in ΔMVBS space. Cell i is classified in the echo-class with the lowest Escore, except if this minimum is above a given threshold. *Step 6*: Predict on a full acoustic dataset. See for @annasawmy2024 a more detailed explanation.
+
+**Our implementation**
+
+Our package implements the Escore method in Python with some modifications. In a modular approach, the user is left to complete step 1 with the echogram annotation of his choice, as long as the annotation format can be read as a `Regions2D` object. The `ExtractionWorkflow` can then be used to extract echo-types using KMeans as a segmenter with a $\Delta \text{MVBS}$ transform (completing step 2). In a very similar manner, step 3 can be achieved using the scikit-learn framework. We only provide simple utility functions to inspect and evaluate clustering performance. With regards to the model itself, we propose some changes. To begin with, we dropped step 4, unsure of the additional benefits compared to applying step 5 to all echoclasses.
+
+We designed a custom scikit-learn estimator called `EscoreClassifier`. In a slight change from the original description, we re-interpreted the Escore model as a combination of Gaussian distributions in $\Delta \text{MVBS}$ space, one for each echo-class. Learning this supervised model comes down to learning the parameters of those distributions, i.e. still the echo-classes’ means and covariance matrices. The model can then predict the Mahalanobis distance of a given point $x$ to each distribution. That distance can in turn be used to compute the likelihood of $\mathbb{P}(x|c)$ for any echo-class $c$. This probabilistic formulation adds some interpretability to an otherwise abstract distance measure. One could also want to derive the posterior probabilities $\mathbb{P}(c|x)$, but this is out of this work’s scope.
+
+In addition to learned parameters, our model is also defined by two hyper parameters corresponding to prediction thresholds. The first one is equivalent to the original Escore threshold. It defined the minimal likelihood for prediction. The second one is a quality threshold controlling the maximum acceptable ratio of likelihoods between the best and second best class. This avoids predicting at the boundaries between echo-classes, which might be welcome in some cases.
+
+As a mathematical formulation, we consider a set of echoclasses $C$, and we assume that the conditional probability distribution of each echoclass follows a normal distribution:
 
 $$
-p(x) = \frac{e^{-\lambda} \lambda^{x}}{x !}
-$$ {#eq-poisson}
+\forall c \in C, \mathbb{P}(.|c) \sim \mathcal{N}(\mu_c, \Sigma_c)
+$$
 
-where $\lambda$ is the rate of eruptions per year. Using @eq-poisson, the probability of an eruption in the next $t$ years can be calculated.
+Assuming an $n$-dimensional ΔMVBS space and $x \in \mathbb{R}^n$, the best and second best echoclass predictions for $x$ can be defined as:
 
-| Name                 | Year   |
-| -------------------- | ------ |
-| Current              | 2021   |
-| Teneguía             | 1971   |
-| Nambroque            | 1949   |
-| El Charco            | 1712   |
-| Volcán San Antonio   | 1677   |
-| Volcán San Martin    | 1646   |
-| Tajuya near El Paso  | 1585   |
-| Montaña Quemada      | 1492   |
+$$
+\DeclareMathOperator*{\argmax}{arg\,max}
+c_1 = \argmax_c{\mathbb{P}(x|c)} \\
+c_2 = \argmax_{c \neq c_1}{\mathbb{P}(x|c)}
+$$
 
-: Recent historic eruptions on La Palma {#tbl-history}
+Our model is the prediction function f such that:
 
-@tbl-history summarises the eruptions recorded since the colonization of the islands by Europeans in the late 1400s.
+$$
+f(x) = \left\{ \begin{array}{l}
+-1 & : \mathbb{P}(x|c_1) < e_{\text{thresh}} \ \cup \ \mathbb{P}(x|c_2) / \mathbb{P}(x|c_1) >  q_{\text{thresh}}\\
+c_1 & : else
+\end{array} \right.
+$$
 
-![Map of La Palma](images/la-palma-map.png){#fig-map}
+where $-1$ is a rejection value returned when the thresholds constraints are violated.
 
-La Palma is one of the west most islands in the Volcanic Archipelago of the Canary Islands (@fig-map). 
+Integrating into the scikit-learn API brings some notable benefits. In particular, this unlocks support for cross validation and a wide range of other machine learning utilities.
 
-{{< embed notebooks/explore-earthquakes.qmd#fig-spatial-plot >}}
+# Case-study: echoclassification in high diversity context
 
-@fig-spatial-plot shows the location of recent Earthquakes on La Palma.
+## Data
 
-## Data & Methods {#sec-data-methods}
+Two oceanographic surveys, ABRAÇOS I and ABRAÇOS II, were performed in the Southwest tropical Atlantic in Austral spring 2015 (September 29-October 21) and fall 2017 (April 9-March 8), as part of the project ‘Acoustics along the Brazilian coast’ [@bertrand2015; @bertrand2017]. The study area encompassed the continental shelf and slope off Northeast Brazil, and oceanic waters around the islands and seamounts of the Fernando de Noronha Chain.
 
-## Conclusion
+Acoustic transects were conducted perpendicularly over the continental slope, and radially around the Rocas Atoll and the Fernando de Noronha Archipelago 1. Acoustic data were collected with a SIMRAD EK60 echosounder at 38, 70, 120 and 200 kHz, synchronously transmitting every 2-3 s. Volume backscattering strength ‘Sv’ (dB re 1 m-1) [@maclennan2002] was recorded down to 700 m depth with a pulse duration of 512 μs, beam angle of 7°, and a transmit power of 1000, 750 and 200 W at 38, 70 and 120 kHz, respectively. Standard target calibration of the echosounder was conducted prior to data acquisition [@demer2015].
 
 ## References {.unnumbered}
 
-:::{#refs}
-
+::: {#refs}
 :::
