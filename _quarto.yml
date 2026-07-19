@@ -12,6 +12,6 @@ format:
         true
   docx: default
   jats: default
-
-
-
+  plos-pdf:
+    keep-tex: true
+    include-in-header: preamble.tex
